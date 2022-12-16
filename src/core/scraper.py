@@ -55,11 +55,11 @@ class Scraper:
         return response.text
 
     @staticmethod
-    def request(url: str) -> requests.Response | None:
+    def request(url: str, timeout: int = 10) -> requests.Response | None:
         try:
             response = requests.get(url=url,
                                     headers={'User-Agent': user_agent()},
-                                    timeout=10)
+                                    timeout=timeout)
         except Exception as e:
             print(f"Couldn't connect to {url}, {e}")
             return None
