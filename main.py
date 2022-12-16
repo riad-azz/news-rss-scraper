@@ -1,4 +1,4 @@
-from src.core.scraper import Scraper
+from src import Scraper
 
 if __name__ == '__main__':
     scraper = Scraper()
