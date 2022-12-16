@@ -7,10 +7,11 @@ class Article:
     # ID is late initialized
     title: str
     link: str
-    description: str
     thumbnail: str
+    description: str
     source: dict
     publish_date: str
+    fetched_date: str
 
     def __post_init__(self):
         self.id = self._generate_id(link=self.link)

@@ -1,5 +1,6 @@
 from typing import List
 from bs4 import BeautifulSoup
+from src.core.client import HTTPClient
 from src.models.article import Article
 from datetime import datetime
 
@@ -30,7 +31,7 @@ class Serializer:
                 continue
             # Description
             try:
-                description = self.html_to_string(item['description'])
+                description = self.html_to_string(item.get('description', ''))
             except Exception as e:
                 print(f"Problem extracting description from {self.name}, {e}")
                 continue
@@ -42,19 +43,22 @@ class Serializer:
                 continue
             # Publish date
             try:
-                backup_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                published = item.get('pubDate', backup_date)
+                published = item.get('pubDate', '')
             except Exception as e:
                 print(f"Problem extracting publish date from {self.name}, {e}")
                 continue
 
+            # Some articles might not have a publishing date, so I included the fetching date
+            date_format = "%a, %d %b %Y %H:%M:%S %z"
+            fetched_date = datetime.now().strftime(date_format)
             article = Article(
                 title=title,
                 link=link,
                 description=description,
                 thumbnail=thumbnail,
                 source=self.source,
-                publish_date=published)
+                publish_date=published,
+                fetched_date=fetched_date)
 
             yield article.to_dict()
 
@@ -66,24 +70,38 @@ class Serializer:
         guid_link = item['guid']['#text']
         return guid_link
 
-    @staticmethod
-    def _get_thumbnail(item) -> str:
-        #TODO: FINISH THIS RIGHT NOW
-        # Return the fetched thumbnail (works only if FORCED_THUMBNAIL is set to true in the Scraper)
-        forced_thumbnail = item.get('thumbnail', None)
-        if forced_thumbnail:
-            return forced_thumbnail
-
+    def _get_thumbnail(self, item) -> str:
+        # -- Try to get thumbnail from the XML --
+        image_url = ''
+        # From media
         media = item.get('media:content', None)
-        if not media:
-            return ''
+        if media:
+            image_url = self.image_from_xml(media)
+        # From enclosure
+        enclosure = item.get('enclosure', None)
+        if enclosure:
+            image_url = self.image_from_xml(enclosure)
+        # -- Try to get the thumbnail from the article page --
+        # works only if forced thumbnail is set to True
+        if self.force_thumbnails and not image_url:
+            html_page = HTTPClient.fetch_html_page(item['link'])
+            if html_page:
+                image_url = self._fetch_thumbnail(html_page)
 
+        return image_url
+
+    @staticmethod
+    def image_from_xml(media) -> str:
+        image_url = ''
         if type(media) is list:
-            image_url = media[0].get('@url', '')
-            return image_url
+            for content in media:
+                if 'image' in content.get('@type', ''):
+                    image_url = content.get('@url', '')
+                    break
         else:
-            image_url = media.get('@url', '')
-            return image_url
+            if 'image' in media.get('@type', ''):
+                image_url = media.get('@url', '')
+        return image_url
 
     @staticmethod
     def _fetch_thumbnail(html: str) -> str:
@@ -102,5 +120,7 @@ class Serializer:
         :return: str without html encoding
         """
         html_obj = BeautifulSoup(html, 'html.parser')
-        text = html_obj.text.encode("ascii", "ignore").decode().replace('[]', '')
+        text = html_obj.text.encode("ascii", "ignore").decode()
+        if text:
+            text = text.replace('[]', '')
         return text

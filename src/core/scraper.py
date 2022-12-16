@@ -1,14 +1,33 @@
-import requests
+from random import choice
+
 import xmltodict
 from typing import List
 from src.core.serializer import Serializer
+from src.core.client import HTTPClient
 from src.models.source import Source
-from src.utils import user_agent
+from time import sleep
 
 
 class Scraper:
 
-    def fetch_articles(self, url: str, force_thumbnails=False) -> List[dict]:
+    def scrape(self, url: str, force_thumbnails=False) -> List[dict]:
+        print(f'Fetching news from : {url}', end='')
+        articles = self._fetch_articles(url, force_thumbnails)
+        if articles:
+            print(f' -> Success ✅')
+        else:
+            print(f' -> Failed ❌')
+        return articles
+
+    def scrape_all(self, url_list: List[str], force_thumbnails=False) -> List[List[dict]]:
+        all_articles = list()
+        for url in url_list:
+            articles = self.scrape(url, force_thumbnails)
+            if articles:
+                all_articles.append(articles)
+        return all_articles
+
+    def _fetch_articles(self, url: str, force_thumbnails=False):
         rss_data = self._fetch_rss_data(url)
         if not rss_data:
             return []
@@ -35,8 +54,9 @@ class Scraper:
             print(f"Failed to serialize {name} articles, {e}")
             return []
 
-    def _fetch_rss_data(self, url: str) -> dict | None:
-        response = self.request(url)
+    @staticmethod
+    def _fetch_rss_data(url: str) -> dict | None:
+        response = HTTPClient.request(url)
         if not response:
             return None
         # Base rss  data
@@ -44,28 +64,5 @@ class Scraper:
             data = xmltodict.parse(response.text)['rss']['channel']
             return data
         except Exception as e:
-            print(f'Failed to parse XML to Dict, {e}')
+            print(f'Failed to parse XML to Dict for {url}, {e}')
             return None
-
-    @staticmethod
-    def _fetch_html_page(link: str) -> str | None:
-        response = Scraper.request(link)
-        if not response:
-            return None
-        return response.text
-
-    @staticmethod
-    def request(url: str, timeout: int = 10) -> requests.Response | None:
-        try:
-            response = requests.get(url=url,
-                                    headers={'User-Agent': user_agent()},
-                                    timeout=timeout)
-        except Exception as e:
-            print(f"Couldn't connect to {url}, {e}")
-            return None
-
-        if response.status_code != 200:
-            print(f'Bad status code : {response.status_code}, {url}')
-            return None
-
-        return response
