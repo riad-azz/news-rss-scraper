@@ -29,8 +29,8 @@ def test_scrape_all(sources: List[str], force_thumbnails=False) -> None:
                                       force_thumbnails=force_thumbnails)
     assert len(all_articles) > 0, 'The scraper did not fetch any articles'
     for i, articles in enumerate(all_articles):
-        with open(f'source_{i}' + '.json', 'w') as f:
-            json.dump(articles, f)
+        with open(f'source_{i}' + '.json', 'w', encoding='utf-8') as f:
+            json.dump(articles, f, indent=2)
 
 
 def test_scrape(url: str, force_thumbnails=False, filename='test.json'):
@@ -38,8 +38,8 @@ def test_scrape(url: str, force_thumbnails=False, filename='test.json'):
     articles = scraper.scrape(url=url,
                               force_thumbnails=force_thumbnails)
     assert len(articles) > 0, 'The scraper did not fetch articles'
-    with open(filename, 'w') as f:
-        json.dump(articles, f)
+    with open(filename, 'w', encoding='utf-8') as f:
+        json.dump(articles, f, indent=2)
     [print(x) for x in articles]
 
 
@@ -57,4 +57,4 @@ def test_force_thumbnail(url: str, force_thumbnails=True):
 
 
 if __name__ == '__main__':
-    test_force_thumbnail('https://www.michaelwest.com.au/feed/')
+    test_scrape('https://www.dailytelegraph.com.au/news/breaking-news/rss', True)

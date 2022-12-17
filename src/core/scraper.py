@@ -1,11 +1,8 @@
-from random import choice
-
 import xmltodict
 from typing import List
 from src.core.serializer import Serializer
 from src.core.client import HTTPClient
 from src.models.source import Source
-from time import sleep
 
 
 class Scraper:
@@ -14,9 +11,9 @@ class Scraper:
         print(f'Fetching news from : {url}', end='')
         articles = self._fetch_articles(url, force_thumbnails)
         if articles:
-            print(f' -> Success ✅')
+            print(f' -> Success ✅ ')
         else:
-            print(f' -> Failed ❌')
+            print(f' -> Failed ❌ ')
         return articles
 
     def scrape_all(self, url_list: List[str], force_thumbnails=False) -> List[List[dict]]:
