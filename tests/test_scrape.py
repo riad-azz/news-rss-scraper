@@ -57,4 +57,4 @@ def test_force_thumbnail(url: str, force_thumbnails=True):
 
 
 if __name__ == '__main__':
-    test_scrape('https://www.dailytelegraph.com.au/news/breaking-news/rss', True)
+    test_scrape('https://www.smh.com.au/rss/feed.xml', True)
