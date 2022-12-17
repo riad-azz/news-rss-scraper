@@ -38,6 +38,7 @@ scraper = Scraper()
 articles = scraper.scrape(url='https://www.dailytelegraph.com.au/news/breaking-news/rss')
 ```
 
+
 * Some rss feeds do not include a thumbnail, BUT! you can use __force_thumbnails__ to try and get the thumbnail from the article page.
  
 ```python
@@ -56,22 +57,24 @@ _Note that it will take a bit longer to finish because it makes a get request to
 from src import Scraper
 
 rss_feeds = [
-    "https://www.dailytelegraph.com.au/news/breaking-news/rss",
-    "https://www.smh.com.au/rss/feed.xml",
-    "https://www.heraldsun.com.au/news/breaking-news/rss",
-    "https://www.abc.net.au/news/feed/1948/rss.xml",
-    "https://www.theage.com.au/rss/feed.xml",
-    "https://www.couriermail.com.au/rss",
-    "https://www.perthnow.com.au/news/feed",
+  "https://www.dailytelegraph.com.au/news/breaking-news/rss",
+  "https://www.smh.com.au/rss/feed.xml",
+  "https://www.heraldsun.com.au/news/breaking-news/rss",
+  "https://www.abc.net.au/news/feed/1948/rss.xml",
+  "https://www.theage.com.au/rss/feed.xml",
+  "https://www.couriermail.com.au/rss",
+  "https://www.perthnow.com.au/news/feed",
 ]
 
 scraper = Scraper()
 rss_articles = scraper.scrape_all(url_list=rss_feeds,
-                          force_thumbnails=True)
+                                  force_thumbnails=True)
 ```
 _This will return a List of articles Lists like so `List[List[dict]]`, and as shown in the example above you can use __force_thumbnails__ here too_.
 
-* Last but not least you can use the command prompt which works for one feed at a time only
+
+## Help
+* You can use the command prompt which works for one feed at a time only
 ```
 python run.py --url='https://indaily.com.au/feed/' --force-thumbnails=True --filename='articles'
 ```
