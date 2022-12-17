@@ -47,7 +47,7 @@ scraper = Scraper()
 articles = scraper.scrape(url='https://www.dailytelegraph.com.au/news/breaking-news/rss',
                           force_thumbnails=True)
 ```
-_Note that this still might not work sometimes with some articles, it also takes a bit longer to finish because it makes a get request to every article page in the rss feed_.
+_Note that it will take a bit longer to finish because it makes a get request to every article page in the rss feed_.
 
 
 * You also have the option to scrape from multiple feeds at the same time, all you need to do is make a list of the feeds you would like to scrape and call `scrape_all(url_list)` passing the list of urls.
@@ -69,7 +69,7 @@ scraper = Scraper()
 rss_articles = scraper.scrape_all(url_list=rss_feeds,
                           force_thumbnails=True)
 ```
-_As shown in the example above you can use __force_thumbnails__ here too_.
+_This will return a List of articles Lists like so `List[List[dict]]`, and as shown in the example above you can use __force_thumbnails__ here too_.
 
 * Last but not least you can use the command prompt which works for one feed at a time only
 ```
